@@ -1,60 +1,55 @@
-use hpke::*;
-use rand::{SeedableRng, rngs::StdRng};
-use hpke::Deserializable;
-
-// These types define the ciphersuite Alice and Bob will be using
-type KEM = kem::X25519HkdfSha256;
-type AEAD = aead::ChaCha20Poly1305;
-type KDF = kdf::HkdfSha384;
+use hpke_cl::*;
+use std::env;
 
 fn main() {
+    let mut args: Vec<String> = env::args().skip(1).collect();
 
-    
-    let bob_pk = <KEM as hpke::Kem>::PublicKey::from_bytes(&[0_u8; 32]).unwrap();
-    let bob_sk = <KEM as hpke::Kem>::PrivateKey::from_bytes(&[0_u8; 32]).unwrap();
+    match args.len() {
+        0 => print_version(),
+        1 => match args[0].as_str() {
+            "--version" | "-v" => print_version(),
+            "--help" | "-h" => print_help(),
+            _ => print_error("Error: option not found!"),
+        },
+        2.. => match args.remove(0).as_str() {
+            "test" => test(args),
+            "encrypt" => if args.len() != 2 {
+                encrypt(args[0].as_str(), args[1].as_str());
+            } else {
+                print_error("Error: wrong number of arguments!");
+            },
+            "decrypt" => if args.len() != 2 {
+                decrypt(args[0].as_str(), args[1].as_str());
+            } else {
+                print_error("Error: wrong number of arguments!");
+            },
+            _ => print_error("Error: command not found!"),
+        },
+        _ => print_error("Error: I don't know what you did, but you fucked up!"),
+    };
+}
 
+fn print_error(msg: &str) {
+    println!("\x1b[0;31m{}\x1b[0m", msg);
+}
 
-    let mut csprng = StdRng::from_entropy();
+fn print_version() {
+    println!("hpke {}", option_env!("CARGO_PKG_VERSION").unwrap_or("unknown"))
+}
 
-    // This is a description string for the session. Both Alice and Bob need to know this value.
-    // It's not secret.
-    let info_str = b"Alice and Bob's weekly chat";
+fn print_help() {
+    let msg = 
+"HPKE command line tool
 
-    // Alice initiates a session with Bob. OpModeS::Base means that Alice is not authenticating
-    // herself at all. If she had a public key herself, or a pre-shared secret that Bob also
-    // knew, she'd be able to authenticate herself. See the OpModeS and OpModeR types for more
-    // detail.
-    let (encapsulated_key, mut encryption_context) =
-        hpke::setup_sender::<AEAD, KDF, KEM, _>(&OpModeS::Base, &bob_pk, info_str, &mut csprng)
-            .expect("invalid server pubkey!");
+Usage: hpke [OPTION] [COMMAND]
 
-    // Alice encrypts a message to Bob. `aad` is authenticated associated data that is not
-    // encrypted.
-    let msg = b"fronthand or backhand?";
-    let aad = b"a gentleman's game";
-    // To seal without allocating:
-    //     let auth_tag = encryption_context.seal_in_place_detached(&mut msg, aad)?;
-    // To seal with allocating:
-    let ciphertext = encryption_context.seal(msg, aad).expect("encryption failed!");
+Options:
+    -h, --help              Print help
+    -v, --version           Print version info
 
-    // ~~~
-    // Alice sends the encapsulated key, message ciphertext, AAD, and auth tag to Bob over the
-    // internet. Alice doesn't care if it's an insecure connection, because only Bob can read
-    // her ciphertext.
-    // ~~~
-
-    // Somewhere far away, Bob receives the data and makes a decryption session
-    let mut decryption_context =
-        hpke::setup_receiver::<AEAD, KDF, KEM>(
-            &OpModeR::Base,
-            &bob_sk,
-            &encapsulated_key,
-            info_str,
-        ).expect("failed to set up receiver!");
-    // To open without allocating:
-    //     decryption_context.open_in_place_detached(&mut ciphertext, aad, &auth_tag)
-    // To open with allocating:
-    let plaintext = decryption_context.open(&ciphertext, aad).expect("invalid ciphertext!");
-
-    assert_eq!(&plaintext, b"fronthand or backhand?");
+Commands:
+    encrypt <CONFIG> <DATA>    Encrypt plain-text in DATA with values in CONFIG
+    decrypt <CONFIG> <DATA>    Dencrypt cypher-text in DATA with values in CONFIG
+";
+    println!("{}", msg);
 }
