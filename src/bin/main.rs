@@ -1,4 +1,4 @@
-use hpke_cl::*;
+use hpke_cl::{*, error::*};
 use std::env;
 
 fn main() {
@@ -9,28 +9,24 @@ fn main() {
         1 => match args[0].as_str() {
             "--version" | "-v" => print_version(),
             "--help" | "-h" => print_help(),
-            _ => print_error("Error: option not found!"),
+            _ => exit_println("Error: option not found"),
         },
         2.. => match args.remove(0).as_str() {
             "test" => test(args),
             "encrypt" => if args.len() != 2 {
                 encrypt(args[0].as_str(), args[1].as_str());
             } else {
-                print_error("Error: wrong number of arguments!");
+                exit_println("Error: wrong number of arguments");
             },
             "decrypt" => if args.len() != 2 {
                 decrypt(args[0].as_str(), args[1].as_str());
             } else {
-                print_error("Error: wrong number of arguments!");
+                exit_println("Error: wrong number of arguments");
             },
-            _ => print_error("Error: command not found!"),
+            _ => exit_println("Error: command not found"),
         },
-        _ => print_error("Error: I don't know what you did, but you fucked up!"),
+        _ => exit_println("Error: I don't know what you did, but you fucked up!"),
     };
-}
-
-fn print_error(msg: &str) {
-    println!("\x1b[0;31m{}\x1b[0m", msg);
 }
 
 fn print_version() {
