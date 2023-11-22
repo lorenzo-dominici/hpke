@@ -1,9 +1,7 @@
 use serde::{Serialize, Deserialize, Deserializer, Serializer, de::Error, ser::SerializeMap};
 use hex;
 
-pub trait Schema {
-    fn check(&self) -> bool;
-}
+pub use hex::{encode, decode};
 
 #[derive(Serialize, Deserialize)]
 pub struct EntityInfo {
@@ -27,25 +25,22 @@ pub struct PubData {
     pub pk_r: Vec<u8>,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Entity {
     pub info: EntityInfo,
     pub pub_data: PubData,
 }
 
-impl Schema for Entity {
-    fn check(&self) -> bool {
-        todo!()
-    }
-}
-
 #[derive(Serialize, Deserialize)]
 pub struct ExchangedData {
     #[serde(serialize_with="bytes_to_hex", deserialize_with="hex_to_bytes")]
-    pub encap: Vec<u8>,
+    pub enc: Vec<u8>,
     #[serde(serialize_with="bytes_to_hex", deserialize_with="hex_to_bytes")]
     pub ct: Vec<u8>,
     #[serde(serialize_with="bytes_to_hex", deserialize_with="hex_to_bytes")]
-    pub aad: Vec<u8>
+    pub aad: Vec<u8>,
+    #[serde(serialize_with="bytes_to_hex", deserialize_with="hex_to_bytes")]
+    pub tag: Vec<u8>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -55,10 +50,16 @@ pub struct TestConfig {
     pub pub_data: PubData,
 }
 
-impl Schema for TestConfig {
-    fn check(&self) -> bool {
-        todo!()
-    }
+pub fn check_sender(sender: &Entity, data: &[u8]) -> bool {
+    todo!()
+}
+
+pub fn check_receiver(receiver: &Entity, exchanged_data: &ExchangedData) -> bool {
+    todo!()
+}
+
+pub fn check_test(test_cfg: &TestConfig) -> bool {
+    todo!()
 }
 
 fn hex_to_bytes<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Vec<u8>, D::Error> {
