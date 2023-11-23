@@ -53,13 +53,6 @@ pub struct ExchangedData {
     pub tag: Vec<u8>,
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct TestConfig {
-    pub sender: EntityInfo,
-    pub receiver: EntityInfo,
-    pub pub_data: PubData,
-}
-
 pub fn check_sender(sender: &Entity, data: &Data) -> bool {
     todo!()
 }
@@ -68,7 +61,7 @@ pub fn check_receiver(receiver: &Entity, exchanged_data: &ExchangedData) -> bool
     todo!()
 }
 
-pub fn check_test(test_cfg: &TestConfig, data: &Data) -> bool {
+pub fn check_test(sender: &Entity, receiver: &Entity, data: &Data) -> bool {
     todo!()
 }
 

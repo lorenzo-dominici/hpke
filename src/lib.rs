@@ -1,4 +1,4 @@
-use config::{Data, ExchangedData, Entity, TestConfig};
+use config::{Data, ExchangedData, Entity};
 use error::*;
 use serde_json;
 use std::fs;
@@ -8,23 +8,25 @@ mod config;
 pub mod error;
 mod darkmagic;
 
-pub fn test(config: &str, data: &str) -> String {
-    let cfg_str = fs::read_to_string(config).expect_or_exit("Error: config file reading failed");
-    let test_cfg: TestConfig = serde_json::from_str(&cfg_str).expect_or_exit("Error: config file ill formatted");
+pub fn test(config_s: &str, config_r: &str, data: &str) -> String {
+    let cfg_s = fs::read_to_string(config_s).expect_or_exit("Error: sender config file reading failed");
+    let sender: Entity = serde_json::from_str(&cfg_s).expect_or_exit("Error: sender config file ill formatted");
+    let cfg_r = fs::read_to_string(config_r).expect_or_exit("Error: receiver config file reading failed");
+    let receiver: Entity = serde_json::from_str(&cfg_r).expect_or_exit("Error: receiver config file ill formatted");
     let data_str = fs::read_to_string(data).expect_or_exit("Error: data file reading failed");
     let pre_data: Data = serde_json::from_str(&data_str).expect_or_exit("Error: data file ill formatted");
 
-    if !config::check_test(&test_cfg, &pre_data) {
+    if !config::check_test(&sender, &receiver, &pre_data) {
         exit_println("Error: inconsistent data or parameters");
     }
 
     let Data {mut pt, aad} = pre_data.clone();
     
-    let (enc, tag) = darkmagic::sss_ipd(test_cfg.pub_data.kem_id, test_cfg.pub_data.kdf_id, test_cfg.pub_data.aead_id, test_cfg.pub_data.mode, test_cfg.sender.psk, test_cfg.sender.psk_id, test_cfg.pub_data.pk_s.clone(), test_cfg.sender.sk, &test_cfg.pub_data.pk_r, &test_cfg.pub_data.info, &mut pt, &aad, &mut rand::rngs::StdRng::from_entropy());
+    let (enc, tag) = darkmagic::sss_ipd(sender.pub_data.kem_id, sender.pub_data.kdf_id, sender.pub_data.aead_id, sender.pub_data.mode, sender.info.psk, sender.info.psk_id, sender.pub_data.pk_s.clone(), sender.info.sk, &sender.pub_data.pk_r, &sender.pub_data.info, &mut pt, &aad, &mut rand::rngs::StdRng::from_entropy());
 
     let mut ct = pt;
 
-    darkmagic::sso_ipd(test_cfg.pub_data.kem_id, test_cfg.pub_data.kdf_id, test_cfg.pub_data.aead_id, test_cfg.pub_data.mode, test_cfg.receiver.psk, test_cfg.receiver.psk_id, test_cfg.pub_data.pk_s, &test_cfg.receiver.sk.unwrap(), &enc, &test_cfg.pub_data.info, &mut ct, &aad, &tag);
+    darkmagic::sso_ipd(receiver.pub_data.kem_id, receiver.pub_data.kdf_id, receiver.pub_data.aead_id, receiver.pub_data.mode, receiver.info.psk, receiver.info.psk_id, receiver.pub_data.pk_s, &receiver.info.sk.unwrap(), &enc, &receiver.pub_data.info, &mut ct, &aad, &tag);
 
     let pt = ct;
 
