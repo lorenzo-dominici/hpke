@@ -16,7 +16,7 @@ pub fn test(config_s: &str, config_r: &str, data: &str) -> String {
     let data_str = fs::read_to_string(data).expect_or_exit("Error: data file reading failed");
     let pre_data: Data = serde_json::from_str(&data_str).expect_or_exit("Error: data file ill formatted");
 
-    if !config::check_test(&sender, &receiver, &pre_data) {
+    if !config::check(&sender) && config::check(&receiver) && sender.pub_data == receiver.pub_data {
         exit_println("Error: inconsistent data or parameters");
     }
 
@@ -47,7 +47,7 @@ pub fn encrypt(config: &str, data: &str) -> String {
     let data_str = fs::read_to_string(data).expect_or_exit("Error: data file reading failed");
     let data: Data = serde_json::from_str(&data_str).expect_or_exit("Error: data file ill formatted");
 
-    if !config::check_sender(&sender, &data) {
+    if !config::check(&sender) {
         exit_println("Error: inconsistent data or parameters");
     }
 
@@ -66,7 +66,7 @@ pub fn decrypt(config: &str, data: &str) -> String {
     let data_str = fs::read_to_string(data).expect_or_exit("Error: data file reading failed");
     let exc_data: ExchangedData = serde_json::from_str(&data_str).expect_or_exit("Error: data file ill formatted");
 
-    if !config::check_receiver(&receiver, &exc_data) {
+    if !config::check(&receiver) {
         exit_println("Error: inconsistent data or parameters");
     }
     

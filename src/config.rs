@@ -21,7 +21,7 @@ pub struct EntityInfo {
     pub sk: Option<Vec<u8>>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Serialize, Deserialize)]
 pub struct PubData {
     pub mode: u8,
     pub kem_id: u16,
@@ -53,16 +53,33 @@ pub struct ExchangedData {
     pub tag: Vec<u8>,
 }
 
-pub fn check_sender(sender: &Entity, data: &Data) -> bool {
-    todo!()
-}
+pub fn check(entity: &Entity) -> bool {
+    let mut is_ok = true;
 
-pub fn check_receiver(receiver: &Entity, exchanged_data: &ExchangedData) -> bool {
-    todo!()
-}
+    is_ok &= match entity.pub_data.mode {
+        0 => true,
+        1 => entity.info.psk.is_some() && entity.info.psk_id.is_some(),
+        2 => entity.info.sk.is_some() && entity.pub_data.pk_s.is_some(),
+        3 => entity.info.sk.is_some() && entity.pub_data.pk_s.is_some() && entity.info.psk.is_some() && entity.info.psk_id.is_some(),
+        _ => false,
+    };
 
-pub fn check_test(sender: &Entity, receiver: &Entity, data: &Data) -> bool {
-    todo!()
+    is_ok &= match entity.pub_data.kdf_id {
+        16 | 17 | 18 | 32 | 33 => true,
+        _ => false,
+    };
+
+    is_ok &= match entity.pub_data.kdf_id {
+        1 | 2 | 3 => true,
+        _ => false,
+    };
+
+    is_ok &= match entity.pub_data.aead_id {
+        1 | 2 | 3 => true,
+        _ => false,
+    };
+
+    is_ok
 }
 
 fn hex_to_bytes<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Vec<u8>, D::Error> {
