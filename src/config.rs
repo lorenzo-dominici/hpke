@@ -3,10 +3,20 @@ use hex;
 
 pub use hex::{encode, decode};
 
+#[derive(PartialEq, Eq, Clone, Serialize, Deserialize)]
+pub struct Data {
+    #[serde(serialize_with="bytes_to_hex", deserialize_with="hex_to_bytes")]
+    pub pt: Vec<u8>,
+    #[serde(serialize_with="bytes_to_hex", deserialize_with="hex_to_bytes")]
+    pub aad: Vec<u8>,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct EntityInfo {
     #[serde(serialize_with="bytes_to_hex_opt", deserialize_with="hex_to_bytes_opt")]
     pub psk: Option<Vec<u8>>,
+    #[serde(serialize_with="bytes_to_hex_opt", deserialize_with="hex_to_bytes_opt")]
+    pub psk_id: Option<Vec<u8>>,
     #[serde(serialize_with="bytes_to_hex_opt", deserialize_with="hex_to_bytes_opt")]
     pub sk: Option<Vec<u8>>,
 }
@@ -50,7 +60,7 @@ pub struct TestConfig {
     pub pub_data: PubData,
 }
 
-pub fn check_sender(sender: &Entity, data: &[u8]) -> bool {
+pub fn check_sender(sender: &Entity, data: &Data) -> bool {
     todo!()
 }
 
@@ -58,7 +68,7 @@ pub fn check_receiver(receiver: &Entity, exchanged_data: &ExchangedData) -> bool
     todo!()
 }
 
-pub fn check_test(test_cfg: &TestConfig) -> bool {
+pub fn check_test(test_cfg: &TestConfig, data: &Data) -> bool {
     todo!()
 }
 

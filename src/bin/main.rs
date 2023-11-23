@@ -12,7 +12,11 @@ fn main() {
             _ => exit_println("Error: option not found"),
         },
         2.. => match args.remove(0).as_str() {
-            "test" => test(args),
+            "test" => if args.len() != 2 {
+                encrypt(args[0].as_str(), args[1].as_str());
+            } else {
+                exit_println("Error: wrong number of arguments");
+            },
             "encrypt" => if args.len() != 2 {
                 encrypt(args[0].as_str(), args[1].as_str());
             } else {
@@ -40,12 +44,13 @@ fn print_help() {
 Usage: hpke [OPTION] [COMMAND]
 
 Options:
-    -h, --help              Print help
-    -v, --version           Print version info
+    -h, --help                  Print help
+    -v, --version               Print version info
 
 Commands:
-    encrypt <CONFIG> <DATA>    Encrypt plain-text in DATA with values in CONFIG
-    decrypt <CONFIG> <DATA>    Dencrypt cypher-text in DATA with values in CONFIG
+    test <CONFIG> <DATA>        Test parameters in CONFIG with data in DATA
+    encrypt <CONFIG> <DATA>     Encrypt plain-text in DATA with values in CONFIG
+    decrypt <CONFIG> <DATA>     Dencrypt cypher-text in DATA with values in CONFIG
 ";
     println!("{}", msg);
 }
