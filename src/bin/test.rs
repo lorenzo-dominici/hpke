@@ -3,9 +3,9 @@ use rand::{rngs::StdRng, SeedableRng};
 use hex;
 
 // These types define the ciphersuite Alice and Bob will be using
-type KEM = X25519HkdfSha256;
-type AEAD = AesGcm128;
-type KDF = HkdfSha256;
+type Kem_ = X25519HkdfSha256;
+type Kdf_ = HkdfSha256;
+type Aead_ = AesGcm128;
 
 fn main() {
     let mut csprng = StdRng::from_entropy();
@@ -13,8 +13,8 @@ fn main() {
     let bob_pk = hex::decode("3948cfe0ad1ddb695d780e59077195da6c56506b027329794ab02bca80815c4d").unwrap();
     let bob_sk = hex::decode("4612c550263fc8ad58375df3f557aac531d26850903e55a9f23f21d8534e8ac8").unwrap();
 
-    let bob_pk = <KEM as hpke::Kem>::PublicKey::from_bytes(&bob_pk).unwrap();
-    let bob_sk = <KEM as hpke::Kem>::PrivateKey::from_bytes(&bob_sk).unwrap();
+    let bob_pk = <Kem_ as hpke::Kem>::PublicKey::from_bytes(&bob_pk).unwrap();
+    let bob_sk = <Kem_ as hpke::Kem>::PrivateKey::from_bytes(&bob_sk).unwrap();
     
     // This is a description string for the session. Both Alice and Bob need to know this value.
     // It's not secret.
@@ -25,7 +25,7 @@ fn main() {
     // knew, she'd be able to authenticate herself. See the OpModeS and OpModeR types for more
     // detail.
     let (encapsulated_key, mut encryption_context) =
-        hpke::setup_sender::<AEAD, KDF, KEM, _>(&OpModeS::Base, &bob_pk, info_str, &mut csprng)
+        hpke::setup_sender::<Aead_, Kdf_, Kem_, _>(&OpModeS::Base, &bob_pk, info_str, &mut csprng)
             .expect("invalid server pubkey!");
     
     // Alice encrypts a message to Bob. `aad` is authenticated associated data that is not
@@ -45,7 +45,7 @@ fn main() {
     
     // Somewhere far away, Bob receives the data and makes a decryption session
     let mut decryption_context =
-        hpke::setup_receiver::<AEAD, KDF, KEM>(
+        hpke::setup_receiver::<Aead_, Kdf_, Kem_>(
             &OpModeR::Base,
             &bob_sk,
             &encapsulated_key,
