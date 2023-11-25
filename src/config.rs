@@ -64,7 +64,7 @@ pub fn check(entity: &Entity) -> bool {
         _ => false,
     };
 
-    is_ok &= match entity.pub_data.kdf_id {
+    is_ok &= match entity.pub_data.kem_id {
         16 | 17 | 18 | 32 | 33 => true,
         _ => false,
     };

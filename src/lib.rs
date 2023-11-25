@@ -16,7 +16,7 @@ pub fn test(config_s: &str, config_r: &str, data: &str) -> String {
     let data_str = fs::read_to_string(data).expect_or_exit("Error: data file reading failed");
     let pre_data: Data = serde_json::from_str(&data_str).expect_or_exit("Error: data file ill formatted");
 
-    if !config::check(&sender) && config::check(&receiver) && sender.pub_data == receiver.pub_data {
+    if !(config::check(&sender) && config::check(&receiver) && (sender.pub_data == receiver.pub_data)) {
         exit_println("Error: inconsistent data or parameters");
     }
 

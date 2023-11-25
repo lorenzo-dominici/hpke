@@ -12,17 +12,17 @@ fn main() {
             _ => exit_println("Error: option not found"),
         },
         2.. => match args.remove(0).as_str() {
-            "test" => if args.len() != 2 {
+            "test" => if args.len() == 3 {
                 test(args[0].as_str(), args[1].as_str(), args[2].as_str())
             } else {
                 exit_println("Error: wrong number of arguments");
             },
-            "encrypt" => if args.len() != 2 {
+            "encrypt" => if args.len() == 2 {
                 encrypt(args[0].as_str(), args[1].as_str())
             } else {
                 exit_println("Error: wrong number of arguments");
             },
-            "decrypt" => if args.len() != 2 {
+            "decrypt" => if args.len() == 2 {
                 decrypt(args[0].as_str(), args[1].as_str())
             } else {
                 exit_println("Error: wrong number of arguments");
