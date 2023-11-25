@@ -1,3 +1,11 @@
+//! This crates offers basic functions for encryption, decryption and testing using the HPKE framework
+//! defined in the [RFC 9180](https://datatracker.ietf.org/doc/rfc9180/ "Hybrid Public Key Encryption").
+//!   
+//! This crate is developed upon the [hpke](https://docs.rs/hpke/0.11.0/hpke/ "docs.rs/hpke") crate to add more flexibility in the choice of algorithms used,
+//! and to integrate command line utilities.
+//!   
+//! The schema to use for the various files can be found in the original [github repository](https://github.com/lorenzo-dominici/hpke-cl).
+
 use config::{Data, ExchangedData, Entity};
 use error::*;
 use serde_json;
@@ -8,6 +16,16 @@ mod config;
 pub mod error;
 mod darkmagic;
 
+
+/// Tests the input files and parameters by checking data consistency through a cycle of enrcyption and decryption.
+/// 
+/// # Parameters
+/// - `config_s` : filepath of the configuration file of the sender.
+/// - `config_r` : filepath of the configuration file of the receiver.
+/// - `data` : filepath of the structured plain data.
+/// 
+/// # Returns
+/// - A `String` containing the outcome of the test.
 pub fn test(config_s: &str, config_r: &str, data: &str) -> String {
     let cfg_s = fs::read_to_string(config_s).expect_or_exit("Error: sender config file reading failed");
     let sender: Entity = serde_json::from_str(&cfg_s).expect_or_exit("Error: sender config file ill formatted");
@@ -37,10 +55,16 @@ pub fn test(config_s: &str, config_r: &str, data: &str) -> String {
     } else {
         "Test: failed\n".to_string()
     }
-
-
 }
 
+/// Encrypts the input data with the input parameters.
+/// 
+/// # Parameters
+/// - `config` : filepath of the configuration file of the sender.
+/// - `data` : filepath of the structured plain data.
+/// 
+/// # Returns
+/// - A `String` containing the structured encrypted data.
 pub fn encrypt(config: &str, data: &str) -> String {
     let cfg_str = fs::read_to_string(config).expect_or_exit("Error: config file reading failed");
     let sender: Entity = serde_json::from_str(&cfg_str).expect_or_exit("Error: config file ill formatted");
@@ -60,6 +84,14 @@ pub fn encrypt(config: &str, data: &str) -> String {
     str_out
 }
 
+/// Decrypts the input encrypted data with the input parameters.
+/// 
+/// # Parameters
+/// - `config` : filepath of the configuration file of the receiver.
+/// - `data` : filepath of the structured encrypted data.
+/// 
+/// # Returns
+/// - A `String` containing the structured plain data.
 pub fn decrypt(config: &str, data: &str) -> String {
     let cfg_str = fs::read_to_string(config).expect_or_exit("Error: config file reading failed");
     let receiver: Entity = serde_json::from_str(&cfg_str).expect_or_exit("Error: config file ill formatted");

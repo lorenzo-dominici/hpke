@@ -2,6 +2,10 @@ use hpke::{self, kem::{self, Kem}, kdf::{self, Kdf}, aead::{self, Aead}, OpModeR
 use super::error::*;
 use rand;
 
+/// This function wraps the funcitonalities of the 
+/// [`single_shot_seal_in_place_detached`](https://docs.rs/hpke/0.11.0/hpke/fn.single_shot_seal_in_place_detached.html) 
+/// function offered by the [hpke](https://docs.rs/hpke/0.11.0/hpke/index.html) crate, so that it is possible to choose
+/// the mode and the algorithms used during the encryption.
 pub fn sss_ipd(kem_id: u16, kdf_id: u16, aead_id: u16, mode: u8, psk: Option<Vec<u8>>, psk_id: Option<Vec<u8>>, pk_s: Option<Vec<u8>>, sk_s: Option<Vec<u8>>, pk_r: &[u8], info: &[u8], pt: &mut [u8], aad: &[u8], csprng: &mut rand::rngs::StdRng) -> (Vec<u8>, Vec<u8>) {
     set_enc_kem(kem_id, kdf_id, aead_id, mode, psk, psk_id, pk_s, sk_s, pk_r, info, pt, aad, csprng)
 }
@@ -48,6 +52,10 @@ fn single_shot_enc<Kem_: Kem, Kdf_: Kdf, Aead_: Aead>(mode: OpModeS<Kem_>, pk_r:
     (enc.to_bytes().to_vec(), aead_tag.to_bytes().to_vec())
 }
 
+/// This function wraps the funcitonalities of the 
+/// [`single_shot_open_in_place_detached`](https://docs.rs/hpke/0.11.0/hpke/fn.single_shot_open_in_place_detached.html) 
+/// function offered by the [hpke](https://docs.rs/hpke/0.11.0/hpke/index.html) crate, so that it is possible to choose
+/// the mode and the algorithms used during the decryption.
 pub fn sso_ipd(kem_id: u16, kdf_id: u16, aead_id: u16, mode: u8, psk: Option<Vec<u8>>, psk_id: Option<Vec<u8>>, pk_s: Option<Vec<u8>>, sk_r: &[u8], enc: &[u8], info: &[u8], ct: &mut [u8], aad: &[u8], tag: &[u8]) {
     set_dec_kem(kem_id, kdf_id, aead_id, mode, psk, psk_id, pk_s, sk_r, enc, info, ct, aad, tag);
 }

@@ -1,6 +1,5 @@
 use serde::{Serialize, Deserialize, Deserializer, Serializer, de::Error, ser::SerializeMap};
 use hex;
-
 pub use hex::{encode, decode};
 
 #[derive(PartialEq, Eq, Clone, Serialize, Deserialize)]
