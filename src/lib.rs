@@ -51,9 +51,9 @@ pub fn test(config_s: &str, config_r: &str, data: &str) -> String {
     let post_data = Data {pt, aad};
 
     if post_data == pre_data {
-        "Test: passed\n".to_string()
+        "Test: passed".to_string()
     } else {
-        "Test: failed\n".to_string()
+        "Test: failed".to_string()
     }
 }
 

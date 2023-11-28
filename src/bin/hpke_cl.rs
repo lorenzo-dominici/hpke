@@ -32,7 +32,7 @@ fn main() {
         _ => exit_println("Error: I don't know what you did, but you fucked up!"),
     };
     
-    print!("{}", str_out);
+    println!("{}", str_out);
 }
 
 fn version() -> String {
