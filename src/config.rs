@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize, Deserializer, Serializer, de::Error, ser::SerializeMap};
+use serde::{Serialize, Deserialize, Deserializer, Serializer, de::Error};
 use hex;
 pub use hex::{encode, decode};
 
