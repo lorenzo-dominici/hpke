@@ -100,9 +100,15 @@ fn bytes_to_hex<S: Serializer>(vec: &Vec<u8>, serializer: S) -> Result<S::Ok, S:
 }
 
 fn bytes_to_hex_opt<S: Serializer>(opt: &Option<Vec<u8>>, serializer: S) -> Result<S::Ok, S::Error> {
+    /*
     let mut map = serializer.serialize_map(None)?;
     if let Some(foo) = opt {
         map.serialize_entry("key", &foo)?;
     }
     map.end()
+    */
+    match opt {
+        Some(v) => bytes_to_hex(v, serializer),
+        None => serializer.serialize_str(""),
+    }
 }
