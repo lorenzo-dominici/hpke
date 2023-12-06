@@ -45,12 +45,12 @@ fn help() -> String {
 Usage: hpke [OPTION] [COMMAND]
 
 Options:
-    -h, --help                  Print help
-    -v, --version               Print version info
+    -h, --help                          Print help
+    -v, --version                       Print version info
 
 Commands:
-    test <CONFIG> <DATA>        Test parameters in CONFIG with data in DATA
-    encrypt <CONFIG> <DATA>     Encrypt plain-text in DATA with values in CONFIG
-    decrypt <CONFIG> <DATA>     Dencrypt cypher-text in DATA with values in CONFIG
+    test <S_CONFIG> <R_CONFIG> <DATA>   Test parameters in S_CONFIG and R_CONFIG with data in DATA
+    encrypt <S_CONFIG> <DATA>           Encrypt plain-text in DATA with values in S_CONFIG
+    decrypt <R_CONFIG> <DATA>           Decrypt cypher-text in DATA with values in R_CONFIG
 ".to_string()
 }
